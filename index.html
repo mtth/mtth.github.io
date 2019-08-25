@@ -1,16 +1,105 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta name="generator" content="pandoc" />
-  <title></title>
-  <style type="text/css">code{white-space: pre;}</style>
-</head>
-<body>
-<ul>
-<li><a href="/pub/posts/2016-06-01-first-post.html">First post</a></li>
-<li><a href="/pub/posts/2016-06-02-other-post.html">Another post</a></li>
-</ul>
-</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>mtth.io</title>
+    <style>
+      body {
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .headline {
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        font-size: 2.5em;
+      }
+
+      .cursor {
+        color: lightgrey;
+        position: relative;
+        top: -3px;
+      }
+      .cursor.blinking {
+        animation: blink 0.5s step-end infinite;
+        -webkit-animation: blink 0.5s step-end infinite;
+      }
+      @-webkit-keyframes blink {
+        0% { opacity: 1.0; }
+        50% { opacity: 0.0; }
+        100% { opacity: 1.0; }
+      }
+      @keyframes blink {
+        0% { opacity: 1.0; }
+        50% { opacity: 0.0; }
+        100% { opacity: 1.0; }
+      }
+
+      .footer {
+        bottom: 10px;
+        color: grey;
+        left: 50%;
+        position: absolute;
+        text-align: center;
+        transform: translateX(-50%) translateY(-50%);
+      }
+      .footer .footer-elem::after {
+        color: lightgrey;
+        content: "|";
+        margin: 0 5px;
+      }
+      .footer .footer-elem:last-child::after {
+        content: "";
+        margin: 0;
+      }
+      .footer a {
+        color: grey;
+        text-decoration-color: #4285f4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="headline">
+      <h1>Hello, <span id="visitor-name"></span><span class="cursor blinking">&vert;</span></h1>
+    </div>
+    <div class="footer">
+      <span class="footer-elem"><a href="https://groups.google.com/forum/#!newtopic/mtth-questions" target="_blank">Contact</a></span>
+      <span class="footer-elem"><a href="https://github.com/mtth">GitHub</a></span>
+      <span class="footer-elem"><a href="https://keybase.io/mtth">Keybase</a></span>
+      <span class="footer-elem"><a href="https://www.linkedin.com/in/mmonsch/">LinkedIn</a></span>
+      <span class="footer-elem">&copy; 2019 Matthieu Monsch</span>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/d3js/5.7.0/d3.min.js"></script>
+    <script>
+      const ANONYMOUS_NAMES = [
+        'explorer',
+        'traveler',
+        'voyager',
+        'wanderer',
+      ];
+
+      setTimeout(main, 500); // Show the blinking cursor for half a second.
+
+      function main() {
+        const visitorName$ = d3.select('#visitor-name');
+        const cursor$ = d3.select('.cursor').classed('blinking', false);
+        const text = ANONYMOUS_NAMES[Math.random() * ANONYMOUS_NAMES.length | 0];
+        visitorName$.transition()
+          .duration(750)
+          .ease(d3.easeSin)
+          .tween('text', () => {
+            return (r) => {
+              visitorName$.text(text.substring(0, Math.ceil(r * text.length)));
+            };
+          })
+          .on('end', () => {
+            cursor$.remove();
+            visitorName$.append('span').text('!');
+          });
+      }
+    </script>
+  </body>
 </html>
