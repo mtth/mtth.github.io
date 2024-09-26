@@ -22,6 +22,9 @@ usage() { # [CODE]
 		Options:
 		  -h  Show help and exit.
 		  -s  Skip GPG key import.
+
+		Examples:
+		  bash <(curl -s https://mtth.github.io/x/bash.sh)
 	EOF
 	exit "${1:-2}"
 }
