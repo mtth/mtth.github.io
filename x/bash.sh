@@ -53,9 +53,9 @@ main() {
 	curl "$gist_url/raw/bash.tar.gz.asc" | gpg --decrypt | tar --extract --gunzip
 	if (( PIPESTATUS[1] == 0 )); then
 		echo 'Entering shell...'
-		bash --rcfile src/login.sh -il
+		bash --rcfile src/login.sh
 	else
-		echo 'invalid signature'
+		echo 'Invalid signature'
 	fi
 }
 

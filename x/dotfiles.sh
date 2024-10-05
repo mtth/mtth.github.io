@@ -16,7 +16,7 @@ usage() { # [CODE]
 		for more information.
 
 		Usage:
-		  $cmd [-hsd PATH]
+		  $cmd [-hmsd PATH]
 
 		Options:
 		  -d PATH  Directory path used to store .files/. Defaults to \$HOME.
@@ -56,7 +56,7 @@ main() {
 			.files/install.sh
 		fi
 	else
-		echo 'invalid signature'
+		echo 'Invalid signature'
 	fi
 }
 
