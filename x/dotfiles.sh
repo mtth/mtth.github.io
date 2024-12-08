@@ -6,8 +6,9 @@ set -o pipefail
 shopt -s nullglob
 
 gist_url=https://gist.githubusercontent.com/mtth/79f9e30413a4cb8b1a9fc3fe66cdf5e5
+gpg_fingerprint=5AA4C330351F0BCD
 
-usage() { # [CODE]
+usage() {
 	local cmd="${0##*/}"
 	cat <<-EOF
 		Install dotfiles
@@ -15,7 +16,7 @@ usage() { # [CODE]
 		See $gist_url
 		for more information.
 
-		Usage:
+		Synopsis:
 		  $cmd [-hmsd PATH]
 
 		Options:
@@ -31,20 +32,20 @@ usage() { # [CODE]
 }
 
 main() {
-	local opt workdir="$HOME" import_key=1 run_install=1
+	local workdir="$HOME" import_key=1 run_install=1 opt
 	while getopts :d:hms opt "$@"; do
 		case "$opt" in
 			d) workdir="$OPTARG" ;;
+			h) usage ;;
 			m) run_install=0 ;;
 			s) import_key=0 ;;
-			h) usage 0 ;;
-			*) printf 'unknown option: %s\n' "$OPTARG" >&2 && usage ;;
+			*) fail "unknown option: $OPTARG" ;;
 		esac
 	done
 	shift $(( OPTIND-1 ))
 
 	if (( import_key )); then
-		gpg --keyserver hkps://keys.openpgp.org --recv-keys 5AA4C330351F0BCD
+		gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
 	fi
 
 	cd "$workdir"
@@ -56,8 +57,12 @@ main() {
 			.files/install.sh
 		fi
 	else
-		echo 'Invalid signature'
+		fail 'Invalid signature'
 	fi
+}
+
+fail() { # MSG
+	printf 'error: %s\n' "$1" >&2 && exit 1
 }
 
 main "$@"
