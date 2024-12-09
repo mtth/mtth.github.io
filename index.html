@@ -4,10 +4,33 @@
     <meta charset="utf-8">
     <title>mtth.io</title>
     <style>
+      :root {
+        --background-color: #111;
+        --text-color: #ccc;
+        --faded-text-color: #555;
+      }
+
+      @media(prefers-color-scheme: light) {
+        :root {
+          --background-color: white;
+          --text-color: black;
+          --faded-text-color: grey;
+        }
+      }
+
+      html {
+        color: var(--text-color);
+        background-color: var(--background-color);
+      }
+
       body {
         font-family: 'Helvetica', 'Arial', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+
+      a {
+        color: var(--text-color);
       }
 
       .headline {
@@ -19,7 +42,7 @@
       }
 
       .cursor {
-        color: lightgrey;
+        color: var(--faded-text-color);
         position: relative;
         top: -3px;
       }
@@ -40,24 +63,19 @@
 
       .footer {
         bottom: 10px;
-        color: grey;
         left: 50%;
         position: absolute;
         text-align: center;
         transform: translateX(-50%) translateY(-50%);
       }
       .footer .footer-elem::after {
-        color: lightgrey;
+        color: var(--faded-text-color);
         content: "|";
         margin: 0 5px;
       }
       .footer .footer-elem:last-child::after {
         content: "";
         margin: 0;
-      }
-      .footer a {
-        color: grey;
-        text-decoration-color: #4285f4;
       }
     </style>
   </head>
@@ -66,14 +84,13 @@
       <h1>Hello, <span id="visitor-name"></span><span class="cursor blinking">&vert;</span></h1>
     </div>
     <div class="footer">
-      <span class="footer-elem"><a href="https://groups.google.com/forum/#!newtopic/mtth-questions" target="_blank">Contact</a></span>
       <span class="footer-elem"><a href="https://github.com/mtth">GitHub</a></span>
       <span class="footer-elem"><a href="https://www.linkedin.com/in/mmonsch/">LinkedIn</a></span>
-      <span class="footer-elem">&copy; 2019 Matthieu Monsch</span>
+      <span class="footer-elem">&copy; 2024 Matthieu Monsch</span>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/d3js/5.7.0/d3.min.js"></script>
     <script>
-      const ANONYMOUS_NAMES = [
+      const visitorNames = [
         'explorer',
         'traveler',
         'voyager',
@@ -85,7 +102,7 @@
       function main() {
         const visitorName$ = d3.select('#visitor-name');
         const cursor$ = d3.select('.cursor').classed('blinking', false);
-        const text = ANONYMOUS_NAMES[Math.random() * ANONYMOUS_NAMES.length | 0];
+        const text = visitorNames[Math.random() * visitorNames.length | 0];
         visitorName$.transition()
           .duration(750)
           .ease(d3.easeSin)
