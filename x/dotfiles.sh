@@ -20,7 +20,7 @@ usage() {
 
 		Synopsis:
 		  $name [-Imsd PATH]
-		  $name -V [-s] PATTERN
+		  $name -V [-sp PAGER] PATTERN
 		  $name -h
 
 		Commands:
