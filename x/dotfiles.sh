@@ -100,7 +100,12 @@ view() { # PATTERN
 	trap "rm -rf '$tmpdir'" EXIT
 	cd "$tmpdir"
 
-	curl -s "$gist_url/raw/dotfiles.tar.gz.asc" | gpg -q --decrypt >files.tar.gz
+	if ! curl -s "$gist_url/raw/dotfiles.tar.gz.asc" \
+			| gpg -q --decrypt >files.tar.gz 2>errors.txt; then
+		cat errors.txt
+		fail 'invalid signature'
+	fi
+
 	tar -tzf files.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
 		|| fail 'no matching files'
 	tar -xzf files.tar.gz -T names.txt
