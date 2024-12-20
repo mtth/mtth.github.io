@@ -113,7 +113,7 @@ view() { # PATTERN
 	fi
 
 	if [[ -z $pattern ]]; then
-		tar -tzf files.tar.gz
+		tar -tzf files.tar.gz | grep -Ev '/$'
 	else
 		tar -tzf files.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
 			|| fail 'no matching files'
