@@ -13,27 +13,28 @@ default_pager=less
 usage() {
 	local name="${0##*/}"
 	cat <<-EOF
-		Install dotfiles
+		Dotfiles installation utility
 
-		See $gist_url
-		for more information.
+		This script is useful to set up a temporary development environment. See
+		$gist_url for
+		more information.
 
 		Synopsis:
-		  $name [-Imsd PATH]
-		  $name -V [-sp PAGER] PATTERN
+		  $name [-Ikmd PATH]
+		  $name -V [-kp PAGER] [PATTERN]
 		  $name -h
 
 		Commands:
-		  -I          Install the dotfiles, linking all user resources. This is the
-		              default command.
-		  -V PATTERN  View the files matching PATTERN within the .files/ folder.
+		  -I          Install dotfiles. This is the default command.
+		  -V PATTERN  View the files matching PATTERN within the .files/ folder. If
+		              PATTERN is omitted, the list of file names is displayed.
 		  -h          Show help and exit.
 
 		Options:
 		  -d PATH   Directory path used to store .files/. Defaults to \$HOME.
+		  -k        Always import GPG key, even if it already exists.
 		  -m        Manual mode, do not invoke the installation script.
 		  -p PAGER  Pager to use for viewing files. Defaults to $default_pager.
-		  -s        Skip GPG key import.
 
 		Examples:
 		  bash <(curl -s https://mtth.github.io/x/dotfiles.sh)
@@ -44,25 +45,23 @@ usage() {
 main() {
 	local \
 		cmd=INSTALL \
-		import_key=1 pager="$default_pager" run_install=1 workdir="$HOME" \
+		import_key=0 pager="$default_pager" run_install=1 workdir="$HOME" \
 		opt
-	while getopts :IVd:hmp:s opt "$@"; do
+	while getopts :IVd:hkmp: opt "$@"; do
 		case "$opt" in
 			I) cmd=INSTALL ;;
 			V) cmd=VIEW ;;
 			d) workdir="$OPTARG" ;;
 			h) usage 0 ;;
+			k) import_key=1 ;;
 			m) run_install=0 ;;
 			p) pager="$OPTARG" ;;
-			s) import_key=0 ;;
 			*) fail "unknown option: $OPTARG" ;;
 		esac
 	done
 	shift $(( OPTIND-1 ))
 
-	if (( import_key )); then
-		gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
-	fi
+	ensure_key
 
 	case "$cmd" in
 		INSTALL)
@@ -70,8 +69,8 @@ main() {
 			install
 			;;
 		VIEW)
-			(( $# == 1 )) || fail 'expected 1 argument'
-			view "$1"
+			(( $# <= 1 )) || fail 'expected 0 or 1 arguments'
+			view "${1:-}"
 			;;
 		*) fail 'unexpected command' ;;
 	esac
@@ -79,6 +78,13 @@ main() {
 
 fail() { # MSG
 	printf 'error: %s\n' "$1" >&2 && exit 1
+}
+
+ensure_key() {
+	if gpg -k "$gpg_fingerprint" &>/dev/null && (( ! import_key )); then
+		return
+	fi
+	gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
 }
 
 install() {
@@ -106,10 +112,14 @@ view() { # PATTERN
 		fail 'invalid signature'
 	fi
 
-	tar -tzf files.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
-		|| fail 'no matching files'
-	tar -xzf files.tar.gz -T names.txt
-	find .files -type f -print0 | xargs -0 "$pager"
+	if [[ -z $pattern ]]; then
+		tar -tzf files.tar.gz
+	else
+		tar -tzf files.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
+			|| fail 'no matching files'
+		tar -xzf files.tar.gz -T names.txt
+		find .files -type f -print0 | xargs -0 "$pager"
+	fi
 }
 
 main "$@"
