@@ -27,13 +27,14 @@ usage() {
 		Examples:
 		  bash <(curl -s https://mtth.github.io/x/bash.sh)
 	EOF
+	exit "${1:-2}"
 }
 
 main() {
 	local import_key=1 opt
 	while getopts :hs opt "$@"; do
 		case "$opt" in
-			h) usage ;;
+			h) usage 0 ;;
 			s) import_key=0 ;;
 			*) fail "unknown option: $OPTARG" ;;
 		esac

@@ -25,10 +25,10 @@ usage() {
 		  $name -h
 
 		Commands:
-		  -I          Install dotfiles. This is the default command.
-		  -V PATTERN  View the files matching PATTERN within the .files/ folder. If
-		              PATTERN is omitted, the list of file names is displayed.
-		  -h          Show help and exit.
+		  -I  Install dotfiles. This is the default command.
+		  -V  View the files matching PATTERN within the .files/ folder. If PATTERN
+		      is omitted, the list of file names is displayed.
+		  -h  Show help and exit.
 
 		Options:
 		  -d PATH   Directory path used to store .files/. Defaults to \$HOME.
