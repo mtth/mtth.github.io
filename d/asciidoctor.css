@@ -184,7 +184,7 @@ template {
     --border: rgba(0, 0, 0, 0.06);
     --divider: rgba(0, 0, 0, 0.12);
     --code-text: var(--text);
-    --code-background: rgba(255, 230, 102, 0.2);
+    --code-background: rgba(170, 169, 165, 0.2);
     --tip: rgb(76, 174, 79);
     --tip-border: rgba(76, 174, 79, 0.4);
     --tip-background: rgba(76, 174, 79, 0.1);
@@ -222,7 +222,7 @@ template {
     --border: rgba(255, 255, 255, 0.12);
     --divider: rgba(255, 255, 255, 0.12);
     --code-text: var(--text);
-    --code-background: rgba(255, 229, 100, 0.2);
+    --code-background: rgba(147, 147, 147, 0.2);
     --tip-background: rgba(76, 174, 79, 0.05);
     --note-background: rgba(32, 148, 243, 0.05);
     --caution-background: rgba(211, 49, 49, 0.05);
@@ -354,7 +354,7 @@ a {
     max-width: 60em; } }
 
 #header {
-  border-bottom: 1px solid var(--border); }
+  border-bottom: 0 solid var(--border); }
   #header > h1:first-child {
     color: var(--text);
     margin-bottom: 0; }
@@ -782,8 +782,6 @@ table.tableblock > .title,
   font-style: italic; }
 
 .verseblock pre {
-  font-family: var(--font-body);
-  font-style: italic;
   font-weight: 300; }
   .verseblock pre strong {
     font-weight: 400; }
