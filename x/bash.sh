@@ -18,7 +18,7 @@ usage() {
 		for more information.
 
 		Synopsis:
-		  $cmd -S [-s]
+		  $cmd -S [-k]
 		  $cmd -h
 
 		Commands:
@@ -26,7 +26,7 @@ usage() {
 		  -h  Show help and exit.
 
 		Options:
-		  -s  Skip GPG key import.
+		  -k  Always import GPG key, even if it already exists.
 
 		Examples:
 		  bash <(curl -s https://mtth.github.io/x/bash.sh) -S
@@ -35,21 +35,19 @@ usage() {
 }
 
 main() {
-	local cmd='' import_key=1 opt
-	while getopts :Shs opt "$@"; do
+	local cmd='' import_key=0 opt
+	while getopts :Shk opt "$@"; do
 		case "$opt" in
 			S) cmd=start ;;
 			h) usage 0 ;;
-			s) import_key=0 ;;
+			k) import_key=1 ;;
 			*) fail "unknown option: $OPTARG" ;;
 		esac
 	done
 	shift $(( OPTIND-1 ))
 	[[ -n $cmd ]] || usage 2
 
-	if (( import_key )); then
-		gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
-	fi
+	ensure_key
 
 	local tmpdir
 	tmpdir="$(mktemp -d --tmpdir bash.XXXX)"
@@ -68,6 +66,13 @@ main() {
 
 fail() { # MSG
 	printf 'error: %s\n' "$1" >&2 && exit 1
+}
+
+ensure_key() {
+	if gpg -k "$gpg_fingerprint" &>/dev/null && (( ! import_key )); then
+		return
+	fi
+	gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
 }
 
 main "$@"
