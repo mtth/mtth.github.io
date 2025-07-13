@@ -18,28 +18,34 @@ usage() {
 		for more information.
 
 		Synopsis:
-		  $cmd [-hs]
+		  $cmd -S [-s]
+		  $cmd -h
+
+		Commands:
+		  -S  Start shell.
+		  -h  Show help and exit.
 
 		Options:
-		  -h  Show help and exit.
 		  -s  Skip GPG key import.
 
 		Examples:
-		  bash <(curl -s https://mtth.github.io/x/bash.sh)
+		  bash <(curl -s https://mtth.github.io/x/bash.sh) -S
 	EOF
 	exit "${1:-2}"
 }
 
 main() {
-	local import_key=1 opt
-	while getopts :hs opt "$@"; do
+	local cmd='' import_key=1 opt
+	while getopts :Shs opt "$@"; do
 		case "$opt" in
+			S) cmd=start ;;
 			h) usage 0 ;;
 			s) import_key=0 ;;
 			*) fail "unknown option: $OPTARG" ;;
 		esac
 	done
 	shift $(( OPTIND-1 ))
+	[[ -n $cmd ]] || usage 2
 
 	if (( import_key )); then
 		gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"

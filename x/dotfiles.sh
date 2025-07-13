@@ -20,12 +20,12 @@ usage() {
 		more information.
 
 		Synopsis:
-		  $name [-Ikmd PATH]
+		  $name -I [-kmd PATH]
 		  $name -V [-kp PAGER] [PATTERN]
 		  $name -h
 
 		Commands:
-		  -I  Install dotfiles. This is the default command.
+		  -I  Install dotfiles.
 		  -V  View the files matching PATTERN within the .files/ folder. If PATTERN
 		      is omitted, the list of file names is displayed.
 		  -h  Show help and exit.
@@ -37,14 +37,14 @@ usage() {
 		  -p PAGER  Pager to use for viewing files. Defaults to $default_pager.
 
 		Examples:
-		  bash <(curl -s https://mtth.github.io/x/dotfiles.sh)
+		  bash <(curl -s https://mtth.github.io/x/dotfiles.sh) -I
 	EOF
 	exit "${1:-2}"
 }
 
 main() {
 	local \
-		cmd=INSTALL \
+		cmd='' \
 		import_key=0 pager="$default_pager" run_install=1 workdir="$HOME" \
 		opt
 	while getopts :IVd:hkmp: opt "$@"; do
@@ -60,6 +60,7 @@ main() {
 		esac
 	done
 	shift $(( OPTIND-1 ))
+	[[ -n $cmd ]] || usage 2
 
 	ensure_key
 
