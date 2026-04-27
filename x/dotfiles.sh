@@ -26,12 +26,13 @@ usage() {
 
 		Commands:
 		  -I  Install dotfiles.
-		  -V  View the files matching PATTERN within the .files/ folder. If PATTERN
-		      is omitted, the list of file names is displayed.
+		  -V  View the files matching PATTERN within the dotfiles/ folder. If
+		      PATTERN is omitted, the list of file names is displayed.
 		  -h  Show help and exit.
 
 		Options:
-		  -d PATH   Directory path used to store .files/. Defaults to \$HOME.
+		  -d PATH   Directory path used to store dotfiles/. Defaults to
+		            \$HOME/.local/opt.
 		  -k        Always import GPG key, even if it already exists.
 		  -m        Manual mode, do not invoke the installation script.
 		  -p PAGER  Pager to use for viewing files. Defaults to $default_pager.
@@ -44,17 +45,18 @@ usage() {
 
 main() {
 	local \
-		cmd='' \
-		import_key=0 pager="$default_pager" run_install=1 workdir="$HOME" \
-		opt
+			cmd='' \
+			OPT_import_key=0 pager="$default_pager" OPT_run_install=1 \
+			OPT_workdir="$HOME/.local/opt" \
+			opt
 	while getopts :IVd:hkmp: opt "$@"; do
 		case "$opt" in
 			I) cmd=INSTALL ;;
 			V) cmd=VIEW ;;
-			d) workdir="$OPTARG" ;;
+			d) OPT_workdir="$OPTARG" ;;
 			h) usage 0 ;;
-			k) import_key=1 ;;
-			m) run_install=0 ;;
+			k) OPT_import_key=1 ;;
+			m) OPT_run_install=0 ;;
 			p) pager="$OPTARG" ;;
 			*) fail "unknown option: $OPTARG" ;;
 		esac
@@ -82,22 +84,24 @@ fail() { # MSG
 }
 
 ensure_key() {
-	if gpg -k "$gpg_fingerprint" &>/dev/null && (( ! import_key )); then
+	if gpg -k "$gpg_fingerprint" &>/dev/null && (( ! OPT_import_key )); then
 		return
 	fi
 	gpg --keyserver hkps://keys.openpgp.org --recv-keys "$gpg_fingerprint"
 }
 
 install() {
-	cd "$workdir"
+	mkdir -p "$OPT_workdir"
+	cd "$OPT_workdir"
 
 	curl -s "$gist_url/raw/dotfiles.tar.gz.asc" \
-		| gpg --decrypt | tar --extract --gunzip
+		| gpg --decrypt \
+		| tar --extract --gunzip
 	(( PIPESTATUS[1] == 0 )) || fail 'Invalid signature'
-	printf 'dotfiles imported to %s\n' "$workdir/.files"
+	printf 'dotfiles imported to %s\n' "$OPT_workdir/dotfiles"
 
-	if (( run_install )); then
-		.files/install.sh
+	if (( OPT_run_install )); then
+		dotfiles/install.sh
 	fi
 }
 
@@ -108,18 +112,18 @@ view() { # PATTERN
 	cd "$tmpdir"
 
 	if ! curl -s "$gist_url/raw/dotfiles.tar.gz.asc" \
-			| gpg -q --decrypt >files.tar.gz 2>errors.txt; then
+			| gpg -q --decrypt >dotfiles.tar.gz 2>errors.txt; then
 		cat errors.txt
 		fail 'invalid signature'
 	fi
 
 	if [[ -z $pattern ]]; then
-		tar -tzf files.tar.gz | grep -Ev '/$'
+		tar -tzf dotfiles.tar.gz | grep -Ev '/$'
 	else
-		tar -tzf files.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
+		tar -tzf dotfiles.tar.gz | grep -E "$pattern" | grep -Ev '/$' >names.txt \
 			|| fail 'no matching files'
-		tar -xzf files.tar.gz -T names.txt
-		find .files -type f -print0 | xargs -0 "$pager"
+		tar -xzf dotfiles.tar.gz -T names.txt
+		find dotfiles -type f -print0 | xargs -0 "$pager"
 	fi
 }
 
